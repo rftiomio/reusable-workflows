@@ -1,0 +1,33 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+    - master
+permissions:
+  id-token: write #for OIDC
+  contents: read
+
+jobs:
+  deploy_lambda:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ secrets.IDENTITY_PROVIDER_ARN }}
+          aws-region: us-east-1
+      - name: npm install
+        env:
+          CI: true
+        run: |
+          cd ./src/
+          npm i
+      - name: deploy
+        run: |
+          zip -j deploy.zip ./src/*
+          aws lambda update-function-code --function-name=lambda-cicd-git --zip-file=fileb://deploy.zip
