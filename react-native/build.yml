@@ -1,0 +1,44 @@
+name: rn-project-apk-build
+
+on:
+  push:
+    branches:
+      - master
+      - main
+      - dev
+      - qa
+
+jobs:
+  install-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install npm dependencies
+        run: |
+          npm install
+  build-android:
+    needs: install-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install npm dependencies
+        run: |
+          npm install
+      - name: Generate Native Source Code
+        run: |
+          npm install expo
+          npx expo prebuild
+      - name: Copying google-services.json
+        env:
+          DATA: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: echo $DATA > /home/runner/work/Purchase-Order-sandbox-repo/Purchase-Order-sandbox-repo/android/app/google-services.json
+      - name: Build Android Release
+        run: |
+          cd android
+          chmod +x gradlew
+          sudo ./gradlew assembleRelease
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: app-release.apk
+          path: android/app/build/outputs/apk/release/

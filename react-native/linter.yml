@@ -1,0 +1,30 @@
+name: Lint Checks & Report
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  Test-Code-Lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name : Setup NodeJs
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+      - name: Install Node Depes
+        run: npm ci
+        env:
+            CI: TRUE
+      - name: Save Linting Report
+        run: npm run lint:report
+        continue-on-error: true
+      - name: Annotate Code Linting Results
+        uses: ataylorme/eslint-annotate-action@v2
+        with:
+          report-json: "eslint_report.json"
+      - name: Test Code Linting
+        run: npm run lint
