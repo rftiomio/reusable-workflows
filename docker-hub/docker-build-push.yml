@@ -1,0 +1,33 @@
+name: Docker Build & Push
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  backend-app-build-push:
+    runs-on: ubuntu-latest
+    environment: dev
+    env:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKER_ACCESS_TOKEN }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Docker Build
+        run: |
+          cd backend # location of the source
+          make build
+
+      - name: Docker Login
+        run: |
+          cd backend # location of the source
+          make docker-login
+
+      - name: Docker Push
+        run: |
+          cd backend # location of the source
+          make docker-push
