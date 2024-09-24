@@ -19,15 +19,15 @@ jobs:
 
       - name: Docker Build
         run: |
-          cd backend # location of the source
+          cd backend # location of the source/ makefile
           make build
 
       - name: Docker Login
         run: |
-          cd backend # location of the source
+          cd backend # location of the source/ makefile
           make docker-login
 
       - name: Docker Push
         run: |
-          cd backend # location of the source
+          cd backend # location of the source/ makefile
           make docker-push
